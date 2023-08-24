@@ -26,13 +26,9 @@ Initializing the implementation involves executing any necessary setup for the l
 
 - ### What is the use for the reinitializer? Provide a minimal example of proper use in Solidity
 
-The initialization functions use a version number. Once a version number is used, it is consumed and cannot be reused. This mechanism prevents re-execution of each "step" but allows the creation of new initialization steps in case an upgrade adds a module that needs to be initialized.
+Initialization functions within the OpenZeppelin Upgrades library utilize version numbers. Once a version number is employed, it becomes unavailable for reuse. This approach prevents the re-execution of individual "steps" while allowing the addition of new initialization steps in cases where an upgrade introduces a module requiring initialization. A "reinitializer" comes into play subsequent to the initial initialization step. Its role is crucial in configuring modules that are introduced through upgrades and demand their own initialization.
 
-A reinitializer may be used after the original initialization step. This is essential to configure modules that are added through upgrades and that require initialization.
-
-When version is 1, this modifier is similar to initializer, except that functions marked with reinitializer cannot be nested. If one is invoked in the context of another, execution will revert.
-
-Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in a contract, executing them in the right order is up to the developer or operator.
+When the version is set to 1, this modifier behaves similarly to "initializer," but functions marked with "reinitializer" cannot be nested. Should one be invoked within the context of another, the execution will revert.
 
     contract MyToken is ERC20Upgradeable {
         function initialize() initializer public {
@@ -45,3 +41,5 @@ Note that versions can jump in increments greater than 1; this implies that if m
             __ERC20Permit_init("MyToken");
         }
     }
+
+In this example, the MyTokenV2 contract inherits from MyToken and introduces a new initialization step using the "reinitializer" mechanism. The initializeV2 function initializes the newly added ERC20 permit module introduced in the upgrade.
