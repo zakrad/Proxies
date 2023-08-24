@@ -21,4 +21,27 @@ The `uint256[50] private __gap;` declaration inserted by the OpenZeppelin upgrad
 
 ### What is the difference between initializing the proxy and initializing the implementation? Do you need to do both? When do they need to be done?
 
+Initializing the proxy involves executing any necessary setup or configuration for the proxy itself. Like setting initial state variables. This initialization typically happens during the initial deployment of the proxy contract.
+Initializing the implementation involves executing any necessary setup for the logic of the contract. Like setting default parameters, like name, symbol and totalSupply of an ERC20 contract or any other actions specific to the contract's logic. This initialization process usually occurs when you upgrade the contract's implementation to a new version
+
 ### What is the use for the reinitializer? Provide a minimal example of proper use in Solidity
+
+The initialization functions use a version number. Once a version number is used, it is consumed and cannot be reused. This mechanism prevents re-execution of each "step" but allows the creation of new initialization steps in case an upgrade adds a module that needs to be initialized.
+
+A reinitializer may be used after the original initialization step. This is essential to configure modules that are added through upgrades and that require initialization.
+
+When version is 1, this modifier is similar to initializer, except that functions marked with reinitializer cannot be nested. If one is invoked in the context of another, execution will revert.
+
+Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in a contract, executing them in the right order is up to the developer or operator.
+
+    contract MyToken is ERC20Upgradeable {
+        function initialize() initializer public {
+            __ERC20_init("MyToken", "MTK");
+        }
+    }
+
+    contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
+        function initializeV2() reinitializer(2) public {
+            __ERC20Permit_init("MyToken");
+        }
+    }
